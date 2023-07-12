@@ -12,5 +12,5 @@ app.use(parser())
 app.use(mainRouter.routes()).use(mainRouter.allowedMethods())
 
 app.listen(API_PORT, () => {
-  console.log(`API ready and listening from port: ${API_PORT}`)
+  console.log(`API ready, up and running on port: ${API_PORT}`)
 });
