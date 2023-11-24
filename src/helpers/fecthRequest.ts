@@ -7,7 +7,7 @@ export type RequestProps = RequestInit & {
   }
 }
 
-export async function makeRequest (method: string, path: string, opt?: RequestInit) {
+export async function makeRequest (method: string, path: string, opt?: RequestInit): Promise<object> {
   try {
     const innerOpts: Partial<RequestProps> = {}
     innerOpts.method = method
@@ -19,10 +19,32 @@ export async function makeRequest (method: string, path: string, opt?: RequestIn
     }
 
     const fetchConfigResult = await fetch(path, innerOpts)
-    const jsonResult = await fetchConfigResult.json()
+    const jsonResult = await fetchConfigResult.json() as object
     logger.info({ jsonResult })
 
     return jsonResult
+  } catch (error) {
+    logger.error(`Something happend trying to fecth from ${path}`)
+    logger.error(error)
+    return {
+      error
+    }
+  }
+}
+export async function makeRequestRaw (method: string, path: string, opt?: RequestInit): Promise<object> {
+  try {
+    const innerOpts: Partial<RequestProps> = {}
+    innerOpts.method = method
+    innerOpts.headers = opt?.headers || {}
+    innerOpts.headers['Content-Type'] = opt?.headers['Content-type'] || 'application/json;charset=utf-8'
+
+    if (opt?.body) {
+      innerOpts.body = opt.body
+    }
+
+    const fetchConfigResult = await fetch(path, innerOpts)
+
+    return fetchConfigResult.body
   } catch (error) {
     logger.error(`Something happend trying to fecth from ${path}`)
     logger.error(error)
