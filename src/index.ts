@@ -1,5 +1,7 @@
 import Koa from 'koa';
 import parser from 'koa-parser'
+import dotenv from 'dotenv'; 
+dotenv.config() 
 // Routers
 import mainRouter from './routes/main/index.js'
 import validatorsRouter from './routes/validators/index.js'
@@ -7,7 +9,7 @@ import validatorsRouter from './routes/validators/index.js'
 import { middlewareLogger } from './logger/middleware.js';
 import { logger } from './logger/logger.js';
 
-const API_PORT = 3000
+const API_PORT = process.env.PORT
 const app = new Koa();
 
 app.use(parser())
