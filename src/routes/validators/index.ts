@@ -7,7 +7,7 @@ import { generateQR, generateQRFileName } from '../../services/QRgenerator/index
 import { checkValidationPrhase, createUUID, createValidationPrhase } from '../../helpers/crypto.js';
 import { AuthenticityCertificate, checkValidationPhraseParams } from '../../types/index.js';
 import { logger } from '../../logger/logger.js';
-import { testingDB } from '../../services/supabase/connection.js';
+import { testingDB } from '../../schemas/Certificates.js';
 
 const router = new Router();
 const ROUTE_BASE = '/validators'
@@ -20,7 +20,6 @@ router.get(`${ROUTE_BASE}`, async (ctx: Context, _next: Next) => {
 });
 
 router.get(`${ROUTE_BASE}/generate-qr`, async (ctx: Context, _next: Next) => {
-  const randomNumber = randomIntFromInterval(10000,99999)
   const secret = `${stringToHexString(SECRET_TAG_BASE)}-${createUUID()}`
   logger.info({ secret })
   const QRGenerated = await generateQR(secret)
@@ -56,10 +55,10 @@ router.post(`${ROUTE_BASE}/generate-validator`, (ctx: Context, _next: Next) => {
   };
 });
 
-router.post(`${ROUTE_BASE}/check-authenticity`, (ctx: Context, _next: Next) => {
+router.post(`${ROUTE_BASE}/check-authenticity`, async (ctx: Context, _next: Next) => {
   const { secret, pin } = ctx.request.body as checkValidationPhraseParams
 
-  const isAuthentic = checkValidationPrhase({ secret, pin })
+  const isAuthentic = await checkValidationPrhase({ secret, pin })
   const validationResponse = isAuthentic ? '✅ VALID ✅' : '❌ WRONG ❌'  
   ctx.body = {
     msg: `${validationResponse} Certificate of Authenticity`
