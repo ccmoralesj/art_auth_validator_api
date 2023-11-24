@@ -2,6 +2,7 @@ import crypto from 'crypto'
 import { VALIDATION_PHRASE_TAG_BASE } from './consts/index.js';
 import { checkValidationPhraseParams, createValidationPhraseParams } from '../types/index.js';
 import { logger } from '../logger/logger.js';
+import { findCertificateBySecret } from '../schemas/Certificates.js';
 
 const { createHmac } = crypto
 
@@ -31,23 +32,23 @@ export function createValidationPrhase(
   return validationPhrase
 }
 
-export function checkValidationPrhase(
+export async function checkValidationPrhase(
   {
     pin,
     secret,
   }: checkValidationPhraseParams
 ) {
-  // TODO Search secret in the DB
-  // Extract validationPrashe
-  const myvalidationPhraseExample= 'CM.d1bd7ee7c26a76a71274766c6003211732a29ebdbdbf2bbb927d0863cd9413cf.b0e9ffcf04136d38629714597008d4ae4e571a33133ab2efbe3996203e753fdf'
-  const dbPinHash = myvalidationPhraseExample.split('.').pop()
+  // Find Certificate in DB
+  const certificate = await findCertificateBySecret(secret)
+  const certificateValidationPhrase = certificate.hash
+  const certificatePinHash = certificateValidationPhrase.split('.').pop()
   
-  logger.info({ dbPinHash })
+  logger.info({ certificatePinHash })
 
   const comparePinHash = createHmac('sha256', secret) 
                               .update(pin) 
                               .digest('hex'); 
 
   logger.info({ comparePinHash })
-  return comparePinHash === dbPinHash
+  return comparePinHash === certificatePinHash
 }
