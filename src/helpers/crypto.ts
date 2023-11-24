@@ -40,6 +40,9 @@ export async function checkValidationPrhase(
 ) {
   // Find Certificate in DB
   const certificate = await findCertificateBySecret(secret)
+  if (!certificate) {
+    return false
+  }
   const certificateValidationPhrase = certificate.hash
   const certificatePinHash = certificateValidationPhrase.split('.').pop()
   
