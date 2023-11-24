@@ -25,6 +25,7 @@
   "dependencies": {
     "@types/koa": "2.13.6",
     "concurrently": "8.2.0",
+    "dotenv": "^16.3.1",
     "drizzle-orm": "0.29.0",
     "fast-safe-stringify": "2.1.1",
     "koa": "2.14.2",
@@ -33,6 +34,7 @@
     "node-fetch": "3.3.2",
     "postgres": "3.4.3",
     "rimraf": "5.0.1",
+    "ts-node": "10.9.1",
     "winston": "3.10.0"
   },
   "devDependencies": {
