@@ -7,7 +7,7 @@ import { generateQR, generateQRFileName } from '../../services/QRgenerator/index
 import { checkValidationPrhase, createUUID, createValidationPrhase } from '../../helpers/crypto.js';
 import { AuthenticityCertificate, checkValidationPhraseParams } from '../../types/index.js';
 import { logger } from '../../logger/logger.js';
-import { testingDB } from '../../schemas/Certificates.js';
+import { createCertificate, testingDB } from '../../schemas/Certificates.js';
 
 const router = new Router();
 const ROUTE_BASE = '/validators'
@@ -29,7 +29,7 @@ router.get(`${ROUTE_BASE}/generate-qr`, async (ctx: Context, _next: Next) => {
   ctx.body = QRGenerated
 });
 
-router.post(`${ROUTE_BASE}/generate-validator`, (ctx: Context, _next: Next) => {
+router.post(`${ROUTE_BASE}/generate-validator`, async (ctx: Context, _next: Next) => {
   const { secret } = ctx.query
   if (typeof secret !== 'string') {
     // TODO Better error handling
@@ -37,21 +37,20 @@ router.post(`${ROUTE_BASE}/generate-validator`, (ctx: Context, _next: Next) => {
       msg: 'secret must be just one string'
     }
   }
-  // const { certificateData } = ctx.body
-  const certificateData: AuthenticityCertificate = {
-    title: 'Trazos de Luz',
-    series: '1/6',
-    creationYear: 2023,
-    dimensions: ' A2 (60cmx42cm)',
-    limitedEdition: 'YES',
-    creationDate: '11/23/2023',
-  }
+  const certificateData = ctx.request.body as AuthenticityCertificate
   const validationPhrase = createValidationPrhase({
     certificateData,
     secret
   })
+  const newCertificate = await createCertificate({
+    artInfo: certificateData,
+    hash: validationPhrase,
+    secret,
+  })
+  logger.info({ newCertificate })
+
   ctx.body = {
-    validationPhrase
+    ...newCertificate 
   };
 });
 
