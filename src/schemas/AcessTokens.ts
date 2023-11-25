@@ -8,7 +8,7 @@ export const accessTokens = pgTable('ACCESS_TOKENS', {
   createdAt: date('created_at'),
   name: text('name').notNull().unique(),
   key: text('key').notNull().unique(),
-  endpoints: json('endpoints').notNull().$type<EndpointObject>(),
+  endpoints: text('endpoints').array(),
 });
 
 type NewAccessToken = typeof accessTokens.$inferInsert
