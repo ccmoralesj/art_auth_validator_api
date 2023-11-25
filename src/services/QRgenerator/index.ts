@@ -11,10 +11,11 @@ export function generateQRFileName() {
 }
 
 export async function generateQR(secret: string){
-  const DOMAIN_URI_REDIRECT = process.env.RAILWAY_PUBLIC_DOMAIN || process.env.DOMAIN_URL_REDIRECT
+  const DOMAIN_URI_REDIRECT = process.env.RAILWAY_PUBLIC_DOMAIN || process.env.DOMAIN_URL_REDIRECT // This ENV var is only for localhost
+  const DOMAIN_PROTOCOL = process.env.RAILWAY_PUBLIC_DOMAIN ? 'https://' : 'http://'
   logger.info({ DOMAIN_URI_REDIRECT })
   const secretEncoded = encodeURI(secret)
-  const queryTo = `http://${DOMAIN_URI_REDIRECT}/validators/validate?secret=${secretEncoded}` 
+  const queryTo = `${DOMAIN_PROTOCOL}${DOMAIN_URI_REDIRECT}/validators/validate?secret=${secretEncoded}` 
   const QRCodeURL = `${QR_GENERATOR_API_URL}${queryTo}`
   const QRCOde = await makeRequestRaw(
     'GET',

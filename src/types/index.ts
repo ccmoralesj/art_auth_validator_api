@@ -5,6 +5,7 @@ export type AuthenticityCertificate = {
   dimensions: string
   limitedEdition: string
   creationDate: string
+  createdAt?: string
 }
 
 export type createValidationPhraseParams = {
@@ -15,4 +16,13 @@ export type createValidationPhraseParams = {
 export type checkValidationPhraseParams = {
   pin: string,
   secret: string
+}
+
+export type EndpointObject = Array<string>
+
+export type AccessToken = {
+  createdAt?: string,
+  name: string,
+  key: string,
+  endpoints: EndpointObject,
 }

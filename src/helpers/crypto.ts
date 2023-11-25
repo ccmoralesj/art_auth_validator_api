@@ -1,9 +1,11 @@
 import crypto from 'crypto'
+import jwt from 'jsonwebtoken'
 import { VALIDATION_PHRASE_TAG_BASE } from './consts/index.js';
 import { checkValidationPhraseParams, createValidationPhraseParams } from '../types/index.js';
 import { logger } from '../logger/logger.js';
 import { findCertificateBySecret } from '../schemas/Certificates.js';
 
+const { JWT_SECRET } = process.env
 const { createHmac } = crypto
 
 export function createUUID() {
@@ -54,4 +56,18 @@ export async function checkValidationPrhase(
 
   logger.info({ comparePinHash })
   return comparePinHash === certificatePinHash
+}
+
+export function createAutoHubJWT (entityName: string) {
+  const today = new Date()
+  const inAMonth = today.setDate(today.getDate() + 30)
+  const standardInfo = {
+    issuer: 'art-auth-validator-api',
+    issuedAt: new Date(),
+    expiration: new Date(inAMonth),
+    entity: 'api',
+    entityName
+  }
+
+  return jwt.sign(standardInfo, JWT_SECRET)
 }
