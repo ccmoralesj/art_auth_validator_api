@@ -22,3 +22,8 @@ export async function findAccessTokenByName(name: string) {
   const [accessToken] = await supabaseDB.select().from(accessTokens).where(eq(accessTokens.name, name))
   return accessToken
 }
+
+export async function findAccessTokenBykey(key: string) {
+  const [accessToken] = await supabaseDB.select().from(accessTokens).where(eq(accessTokens.key, key))
+  return accessToken
+}

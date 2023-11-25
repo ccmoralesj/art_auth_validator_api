@@ -26,3 +26,6 @@ export type AccessToken = {
   key: string,
   endpoints: EndpointObject,
 }
+
+export type RouteDeepStructure = { method: string, path: string, auth: boolean }
+export type RouteStructure = { [key: string]: RouteDeepStructure }

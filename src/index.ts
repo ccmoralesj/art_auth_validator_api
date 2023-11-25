@@ -9,6 +9,8 @@ import accessTokensRouter from './routes/accessToken/index.js'
 
 import { middlewareLogger } from './logger/middleware.js';
 import { logger } from './logger/logger.js';
+import { middlewareAuth } from './services/middlewares/auth.js';
+import './helpers/whiteListRoutes.js'
 
 const API_PORT = process.env.PORT
 const app = new Koa();
@@ -16,6 +18,8 @@ const app = new Koa();
 app.use(parser())
 
 app.use(middlewareLogger());
+
+app.use(middlewareAuth)
 
 // ROUTERS
 app.use(mainRouter.routes()).use(mainRouter.allowedMethods())

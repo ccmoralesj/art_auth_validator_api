@@ -2,15 +2,37 @@ import { Context, Next } from 'koa';
 import Router from 'koa-router';
 import { SECRET_TAG_BASE } from '../../helpers/consts/index.js';
 import { stringToHexString } from '../../helpers/stringToHex.js';
-import { randomIntFromInterval } from '../../helpers/randomNumberBetween.js';
 import { generateQR, generateQRFileName } from '../../services/QRgenerator/index.js';
 import { checkValidationPrhase, createUUID, createValidationPrhase } from '../../helpers/crypto.js';
-import { AuthenticityCertificate, checkValidationPhraseParams } from '../../types/index.js';
+import { AuthenticityCertificate, RouteStructure, checkValidationPhraseParams } from '../../types/index.js';
 import { logger } from '../../logger/logger.js';
 import { createCertificate, testingDB } from '../../schemas/Certificates.js';
 
 const router = new Router();
 const ROUTE_BASE = '/validators'
+
+export const allRoutes: RouteStructure  = {
+  [ROUTE_BASE]: {
+    path: ROUTE_BASE,
+    method: 'GET',
+    auth: false
+  },
+  [`${ROUTE_BASE}/generate-qr`]: {
+    path: `${ROUTE_BASE}/generate-qr`,
+    method: 'GET',
+    auth: true
+  },
+  [`${ROUTE_BASE}/generate-validator`]: {
+    path: `${ROUTE_BASE}/generate-validator`,
+    method: 'POST',
+    auth: true
+  },
+  [`${ROUTE_BASE}/check-authenticity`]: {
+    path: `${ROUTE_BASE}/check-authenticity`,
+    method: 'POST',
+    auth: false
+  }
+}
 
 router.get(`${ROUTE_BASE}`, async (ctx: Context, _next: Next) => {
   await testingDB()
@@ -32,10 +54,9 @@ router.get(`${ROUTE_BASE}/generate-qr`, async (ctx: Context, _next: Next) => {
 router.post(`${ROUTE_BASE}/generate-validator`, async (ctx: Context, _next: Next) => {
   const { secret } = ctx.query
   if (typeof secret !== 'string') {
-    // TODO Better error handling
-    return ctx.body = {
-      msg: 'secret must be just one string'
-    }
+    ctx.response.status = 400
+    ctx.response.message = 'secret must be just one string'
+    return
   }
   const certificateData = ctx.request.body as AuthenticityCertificate
   const validationPhrase = createValidationPrhase({
