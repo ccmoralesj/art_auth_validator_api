@@ -5,7 +5,6 @@ import { eq } from "drizzle-orm";
 import { AuthenticityCertificate } from "../types/index.js";
 
 export const certificates = pgTable('CERTIFICATES', {
-  // id: uuid('id').primaryKey(),
   createdAt: date('created_at'),
   artInfo: json('art_info').notNull().$type<AuthenticityCertificate>(),
   hash: text('hash').notNull().unique(),

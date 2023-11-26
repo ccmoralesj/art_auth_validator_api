@@ -1,12 +1,22 @@
 import crypto from 'crypto'
 import jwt from 'jsonwebtoken'
-import { VALIDATION_PHRASE_TAG_BASE } from './consts/index.js';
+import { PIN_CONDE_LENGTH, VALIDATION_PHRASE_TAG_BASE } from './consts/index.js';
 import { checkValidationPhraseParams, createValidationPhraseParams } from '../types/index.js';
 import { logger } from '../logger/logger.js';
 import { findCertificateBySecret } from '../schemas/Certificates.js';
 
 const { JWT_SECRET } = process.env
 const { createHmac } = crypto
+
+export function convertToBase64URISecure(text: string) {
+  const buff = Buffer.from(text)
+  return buff.toString('base64url')
+}
+
+export function convertFromBase64URISecure(text: string) {
+  const buff = Buffer.from(text, 'base64url')
+  return buff.toString('ascii')
+}
 
 export function createUUID() {
   return crypto.randomUUID()
@@ -21,17 +31,32 @@ export function createValidationPrhase(
   const artCertificateHash = createHmac('sha256', secret) 
                               .update(JSON.stringify(certificateData)) 
                               .digest('hex');
-  const PIN = artCertificateHash.substr(artCertificateHash.length - 7)
-  const pinHash = createHmac('sha256', secret) 
-                              .update(PIN) 
-                              .digest('hex'); 
-  const validationPhrase = `${VALIDATION_PHRASE_TAG_BASE}.${artCertificateHash}.${pinHash}`
-  // TODO Save all data in a DB
+  const createPINHalf = artCertificateHash.substring(artCertificateHash.length - PIN_CONDE_LENGTH)
+  
+  const base64PIN = convertToBase64URISecure(createPINHalf)
+  const pinHashHalf = createHmac('sha256', secret) 
+                              .update(base64PIN) 
+                              .digest('hex');
+
+  const createPIN2Half = pinHashHalf.substring(pinHashHalf.length - PIN_CONDE_LENGTH)
+  const pinToArt = convertToBase64URISecure(`${createPINHalf}${createPIN2Half}`)
+
+  const pinHashFinal = createHmac('sha256', secret) 
+                              .update(pinToArt) 
+                              .digest('hex');
+
+  const validationPhrase = `${VALIDATION_PHRASE_TAG_BASE}.${artCertificateHash}.${pinHashHalf}.${pinHashFinal}`
+
   logger.info({
-    PIN,
+    pinToArt,
+    basicPIN: createPINHalf,
+    pinHash: pinHashHalf,
     validationPhrase
   })
-  return validationPhrase
+  return {
+    validationPhrase,
+    pinToArt
+  }
 }
 
 export async function checkValidationPrhase(
@@ -46,16 +71,25 @@ export async function checkValidationPrhase(
     return false
   }
   const certificateValidationPhrase = certificate.hash
-  const certificatePinHash = certificateValidationPhrase.split('.').pop()
+  const certificateValidationPhraseParts = certificateValidationPhrase.split('.')
+  const certificatepinHashFinal = certificateValidationPhraseParts.pop()
+  const certificatePinHashHalf = certificateValidationPhraseParts.pop()
+  const certificatePinHash = certificateValidationPhraseParts.pop()
+
+  const createPINHalf = certificatePinHash.substring(certificatePinHash.length - PIN_CONDE_LENGTH)
+  const createPIN2Half = certificatePinHashHalf.substring(certificatePinHashHalf.length - PIN_CONDE_LENGTH)
+
+  const pinGeneratedFromHash = convertToBase64URISecure(`${createPINHalf}${createPIN2Half}`)
   
-  logger.info({ certificatePinHash })
+  if (pin !== pinGeneratedFromHash) {
+    return false
+  }
 
-  const comparePinHash = createHmac('sha256', secret) 
-                              .update(pin) 
-                              .digest('hex'); 
-
-  logger.info({ comparePinHash })
-  return comparePinHash === certificatePinHash
+  const comparePinHashFinal = createHmac('sha256', secret) 
+                        .update(pinGeneratedFromHash) 
+                        .digest('hex');
+  logger.info({ certificatePinHash: certificatepinHashFinal, comparePinHash: comparePinHashFinal })
+  return comparePinHashFinal === certificatepinHashFinal
 }
 
 export function createAutoHubJWT (entityName: string) {

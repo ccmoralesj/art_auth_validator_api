@@ -15,7 +15,7 @@ export async function generateQR(secret: string){
   const DOMAIN_PROTOCOL = process.env.RAILWAY_PUBLIC_DOMAIN ? 'https://' : 'http://'
   logger.info({ DOMAIN_URI_REDIRECT })
   const secretEncoded = encodeURI(secret)
-  const queryTo = `${DOMAIN_PROTOCOL}${DOMAIN_URI_REDIRECT}/validators/validate?secret=${secretEncoded}` 
+  const queryTo = `${DOMAIN_PROTOCOL}${DOMAIN_URI_REDIRECT}/validators/validate-form?secret=${secretEncoded}` 
   const QRCodeURL = `${QR_GENERATOR_API_URL}${queryTo}`
   const QRCOde = await makeRequestRaw(
     'GET',

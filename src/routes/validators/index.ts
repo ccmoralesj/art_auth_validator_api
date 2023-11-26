@@ -31,6 +31,11 @@ export const allRoutes: RouteStructure  = {
     path: `${ROUTE_BASE}/check-authenticity`,
     method: 'POST',
     auth: false
+  },
+  [`${ROUTE_BASE}/validate-form`]: {
+    path: `${ROUTE_BASE}/validate-form`,
+    method: 'GET',
+    auth: false
   }
 }
 
@@ -59,7 +64,10 @@ router.post(`${ROUTE_BASE}/generate-validator`, async (ctx: Context, _next: Next
     return
   }
   const certificateData = ctx.request.body as AuthenticityCertificate
-  const validationPhrase = createValidationPrhase({
+  const {
+    validationPhrase,
+    pinToArt
+  } = createValidationPrhase({
     certificateData,
     secret
   })
@@ -71,7 +79,8 @@ router.post(`${ROUTE_BASE}/generate-validator`, async (ctx: Context, _next: Next
   logger.info({ newCertificate })
 
   ctx.body = {
-    ...newCertificate 
+    ...newCertificate,
+    pinToArt
   };
 });
 
