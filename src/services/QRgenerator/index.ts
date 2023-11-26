@@ -1,6 +1,7 @@
 import { makeRequestRaw } from "../../helpers/fecthRequest.js"
 import { randomIntFromInterval } from "../../helpers/randomNumberBetween.js"
 import { logger } from "../../logger/logger.js"
+import { allRoutes as validatorRoutes } from "../../routes/validators/index.js"
 import { QR_GENERATOR_API_URL } from "./consts.js"
 
 export function generateQRFileName() {
@@ -15,7 +16,7 @@ export async function generateQR(secret: string){
   const DOMAIN_PROTOCOL = process.env.RAILWAY_PUBLIC_DOMAIN ? 'https://' : 'http://'
   logger.info({ DOMAIN_URI_REDIRECT })
   const secretEncoded = encodeURI(secret)
-  const queryTo = `${DOMAIN_PROTOCOL}${DOMAIN_URI_REDIRECT}/validators/validate-form?secret=${secretEncoded}` 
+  const queryTo = `${DOMAIN_PROTOCOL}${DOMAIN_URI_REDIRECT}${validatorRoutes['/validators/validate-form'].path}/?secret=${secretEncoded}` 
   const QRCodeURL = `${QR_GENERATOR_API_URL}${queryTo}`
   const QRCOde = await makeRequestRaw(
     'GET',
