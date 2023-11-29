@@ -11,20 +11,22 @@ import accessTokensRouter from "./routes/accessToken/index.js";
 import { middlewareLogger } from "./logger/middleware.js";
 import { logger } from "./logger/logger.js";
 import { middlewareAuth } from "./services/middlewares/auth.js";
-import "./helpers/whiteListRoutes.js";
+import { fillWhiteListOrigins } from "./helpers/whiteListOrigins.js";
 import { WHITE_LIST_ORIGINS } from "./helpers/consts/index.js";
+import "./helpers/whiteListRoutes.js";
+
+// Fill the White List Origins with ENV VARS
+fillWhiteListOrigins();
 
 const API_PORT = process.env.PORT;
 const app = new Koa();
 
-// Add a list of allowed origins.
-// If you have more origins you would like to add, you can add them to the array below.
-const allowedOrigins = ["http://localhost:3000", process.env.FRONTEND_URI];
-
 const options = {
   origin(ctx) {
-    const originFound = WHITE_LIST_ORIGINS.find((url) => url === ctx.url);
-    logger.info({ originFound, WHITE_LIST_ORIGINS });
+    const originFound = WHITE_LIST_ORIGINS.find(
+      (origin) => origin === ctx.origin
+    );
+    logger.info({ ctxURL: ctx.origin, originFound, WHITE_LIST_ORIGINS });
     if (originFound) {
       return true;
     }

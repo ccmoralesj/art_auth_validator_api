@@ -6,8 +6,4 @@ export const VALIDATION_PHRASE_TAG_BASE = "CM";
 
 export const WHITE_LIST_ROUTES: RouteDeepStructure[] = [];
 
-export const WHITE_LIST_ORIGINS: string[] = [
-  "http://localhost:3000",
-  process.env.FRONTEND_URI,
-  `https://${process.env.RAILWAY_PUBLIC_DOMAIN}`,
-];
+export const WHITE_LIST_ORIGINS: string[] = [];
