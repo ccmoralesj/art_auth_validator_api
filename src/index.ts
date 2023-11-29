@@ -49,7 +49,9 @@ app.use(validatorsRouter.routes()).use(validatorsRouter.allowedMethods());
 app.use(accessTokensRouter.routes()).use(accessTokensRouter.allowedMethods());
 
 app.listen(API_PORT, () => {
-  logger.info(
-    `🚀 Server ready at: http://localhost:${API_PORT} 🚀\n\t⭐️⭐️⭐️⭐️⭐️`
-  );
+  const domain = process.env.RAILWAY_PUBLIC_DOMAIN
+    ? `http://${process.env.RAILWAY_PUBLIC_DOMAIN}`
+    : "http://localhost:${API_PORT}";
+  const helloMessage = `🚀 Server ready at: ${domain} 🚀\n\t⭐️⭐️⭐️⭐️⭐️`;
+  logger.info(helloMessage);
 });
