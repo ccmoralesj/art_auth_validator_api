@@ -17,7 +17,11 @@ import {
   checkValidationPhraseParams,
 } from "../../types/index.js";
 import { logger } from "../../logger/logger.js";
-import { createCertificate, testingDB } from "../../schemas/Certificates.js";
+import {
+  createCertificate,
+  findArtInfoBySecret,
+  testingDB,
+} from "../../schemas/Certificates.js";
 
 const router = new Router();
 const ROUTE_BASE = "/validators";
@@ -42,7 +46,7 @@ export const allRoutes: RouteStructure = {
     // TODO generate key only for FE to call this endpoint
     path: `${ROUTE_BASE}/check-authenticity`,
     method: "POST",
-    auth: false, // TODO change true for production
+    auth: true,
   },
 };
 
@@ -98,8 +102,10 @@ router.post(
 
     const isAuthentic = await checkValidationPrhase({ secret, pin });
     const validationResponse = isAuthentic ? "✅ VALID ✅" : "❌ WRONG ❌";
+    const artInfo = isAuthentic ? await findArtInfoBySecret(secret) : {};
     ctx.body = {
       msg: `${validationResponse} Certificate of Authenticity`,
+      artInfo,
     };
   }
 );

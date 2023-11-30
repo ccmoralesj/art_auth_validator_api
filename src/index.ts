@@ -29,7 +29,7 @@ const options = {
     const originFound = WHITE_LIST_ORIGINS.find(
       (origin) => origin === ctx.origin
     );
-    logger.info({ ctxURL: ctx.origin, originFound, WHITE_LIST_ORIGINS });
+    // logger.info({ ctxURL: ctx.origin, originFound, WHITE_LIST_ORIGINS });
     if (originFound) {
       return true;
     }
