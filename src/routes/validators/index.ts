@@ -104,8 +104,9 @@ router.post(
     const validationResponse = isAuthentic ? "✅ VALID ✅" : "❌ WRONG ❌";
     const artInfo = isAuthentic ? await findArtInfoBySecret(secret) : {};
     ctx.body = {
-      msg: `${validationResponse} Certificate of Authenticity`,
-      artInfo,
+      isAuthentic,
+      message: `${validationResponse} Certificate of Authenticity`,
+      ...artInfo,
     };
   }
 );
