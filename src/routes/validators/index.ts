@@ -50,14 +50,15 @@ export const allRoutes: RouteStructure = {
   },
 };
 
-router.get(`${ROUTE_BASE}`, async (ctx: Context, _next: Next) => {
+router.get(`${ROUTE_BASE}`, async (ctx: Context, next: Next) => {
   await testingDB();
   ctx.body = {
     msg: "Hello Koa from validators",
   };
+  return next();
 });
 
-router.get(`${ROUTE_BASE}/generate-qr`, async (ctx: Context, _next: Next) => {
+router.get(`${ROUTE_BASE}/generate-qr`, async (ctx: Context, next: Next) => {
   const secret = `${stringToHexString(SECRET_TAG_BASE)}-${createUUID()}`;
   logger.info({ secret });
   const QRGenerated = await generateQR(secret);
@@ -65,16 +66,17 @@ router.get(`${ROUTE_BASE}/generate-qr`, async (ctx: Context, _next: Next) => {
   ctx.response.set("content-type", "image/svg+xml");
   ctx.response.set("Content-disposition", `filename=${QRCodeName}`);
   ctx.body = QRGenerated;
+  return next();
 });
 
 router.post(
   `${ROUTE_BASE}/generate-validator`,
-  async (ctx: Context, _next: Next) => {
+  async (ctx: Context, next: Next) => {
     const { secret } = ctx.query;
     if (typeof secret !== "string") {
       ctx.response.status = 400;
       ctx.response.message = "secret must be just one string";
-      return;
+      return next();
     }
     const certificateData = ctx.request.body as AuthenticityCertificate;
     const { validationPhrase, pinToArt } = createValidationPrhase({
@@ -92,14 +94,14 @@ router.post(
       ...newCertificate,
       pinToArt,
     };
+    return next();
   }
 );
 
 router.post(
   `${ROUTE_BASE}/check-authenticity`,
-  async (ctx: Context, _next: Next) => {
+  async (ctx: Context, next: Next) => {
     const { secret, pin } = ctx.request.body as checkValidationPhraseParams;
-
     const isAuthentic = await checkValidationPrhase({ secret, pin });
     const validationResponse = isAuthentic ? "✅ VALID ✅" : "❌ WRONG ❌";
     const artInfo = isAuthentic ? await findArtInfoBySecret(secret) : {};
@@ -108,6 +110,7 @@ router.post(
       message: `${validationResponse} Certificate of Authenticity`,
       ...artInfo,
     };
+    return next();
   }
 );
 

@@ -1,22 +1,23 @@
-import { Context, Next } from 'koa';
-import Router from 'koa-router';
-import { RouteStructure } from '../../types/index.js';
+import { Context, Next } from "koa";
+import Router from "koa-router";
+import { RouteStructure } from "../../types/index.js";
 
 const router = new Router();
-const ROUTE_BASE = '/'
+const ROUTE_BASE = "/";
 
-export const allRoutes: RouteStructure  = {
+export const allRoutes: RouteStructure = {
   [ROUTE_BASE]: {
     path: ROUTE_BASE,
-    method: 'GET',
-    auth: false
-  }
-}
+    method: "GET",
+    auth: false,
+  },
+};
 
-router.get(allRoutes[ROUTE_BASE].path, (ctx: Context, _next: Next) => {
+router.get(allRoutes[ROUTE_BASE].path, (ctx: Context, next: Next) => {
   ctx.body = {
-    msg: 'Hello Koa live server'
+    msg: "Hello Koa live server",
   };
+  return next();
 });
 
 export default router;
